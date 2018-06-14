@@ -100,28 +100,50 @@ write.table(union_time_indep_DEgene_KEGG_GO, file="../results/union_time_indep_D
 
 ################################################################################
 # PCA of DEGs
-# union or intersect ?
-DEexprs_time_indep <- dge$counts[union_time_indep_DEG,]
-DEexprs_time_indep <- dge$counts[intersect_time_indep_DEG,]
-
 Expdesign <- model.matrix(~0+ pheno$individual+ pheno$label )
 v <- voom(dge,Expdesign)
-DEexprs_time_indep <- v$E[union_time_indep_DEG,]
-DEexprs_time_indep <- v$E[intersect_time_indep_DEG,]
+
+####################################################
+# intersect
+DEexprs_time_indep_intersect <- v$E[intersect_time_indep_DEG,]
+
 ###################
 # heatmap
-gplots::heatmap.2(DEexprs_time_indep, trace = "none", col="greenred", scale="row",
-                  srtCol=60, keysize=1, 
-                  ylab=paste(nrow(DEexprs_time_indep), "DE Genes"), margins = c(4, 2), labRow=FALSE)
+gplots::heatmap.2(DEexprs_time_indep_intersect, trace = "none", col="greenred", scale="row",
+                  srtCol=60, keysize=1, cexCol=1.3, cexRow=1.1, Colv=TRUE,
+                  ylab=paste(nrow(DEexprs_time_indep_intersect), "DE Genes"), margins = c(4, 6))
+
+# order based on time
+sample_id_ordered <- dplyr::arrange(pheno, state, as.numeric(sub("h", "",timepoint))) %>% dplyr::select(sample_ID) %>% unlist(use.names = FALSE)
+gplots::heatmap.2(DEexprs_time_indep_intersect[,sample_id_ordered], trace = "none", col="greenred", scale="row",
+                  srtCol=60, keysize=1, cexCol=1.3, cexRow=1.1, Colv=FALSE,
+                  ylab=paste(nrow(DEexprs_time_indep_intersect), "DE Genes"), margins = c(4, 6))
+
+####################################################
+#united DEGs
+DEexprs_time_indep_united <- v$E[union_time_indep_DEG,]
+
+gplots::heatmap.2(DEexprs_time_indep_united, trace = "none", col="greenred", scale="row",
+                  srtCol=60, keysize=1, cexCol=1.3, cexRow=1.1, Colv=TRUE, labRow=FALSE,
+                  ylab=paste(nrow(DEexprs_time_indep_united), "DE Genes"), margins = c(4, 2))
+
+# order based on time
+sample_id_ordered <- dplyr::arrange(pheno, state, as.numeric(sub("h", "",timepoint))) %>% dplyr::select(sample_ID) %>% unlist(use.names = FALSE)
+gplots::heatmap.2(DEexprs_time_indep_united[,sample_id_ordered], trace = "none", col="greenred", scale="row",
+                  srtCol=60, keysize=1, cexCol=1.3, cexRow=1.1, Colv=FALSE, labRow=FALSE,
+                  ylab=paste(nrow(DEexprs_time_indep_united), "DE Genes"), margins = c(4, 2))
 
 
-###################
+
+#########################################################
 # 2D PCA
+DEexprs_time_indep <- DEexprs_time_indep_united
+
 library(ggfortify)
 
 
 #color group and time
-autoplot(prcomp(t(DEexprs_time_indep), scale=T), data=pheno, colour = "label", 
+autoplot(prcomp(t(DEexprs_time_indep), scale=F), data=pheno, colour = "label", 
          size = 15, label = TRUE, label.colour="black", ts.colour="black" )
 
 # color individ
