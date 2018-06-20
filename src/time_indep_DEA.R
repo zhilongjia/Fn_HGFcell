@@ -84,9 +84,36 @@ for (tp in c("2h", "6h", "12h", "24h", "48h") ) {
     DEA_list[["DEGexp"]][[tp]] <- v$E[DEG_limma_filter[[tp]],]
 }
 
+save.image("../results/time_indep_DEA_stage1.RData")
+
 ################################################################################
 # gene symbol annotation
 sapply(DEA_list$DEG, length)
+
+View(DEA_list$limma_res$`2h`)
+
+for (tp_i in names(DEA_list$limma_res) ){
+    write.table(DEA_list$limma_res[[tp_i]][,c(tp_i, "logFC")], 
+                file = paste0( "../results/pathview/DEA_list_limma_res_", tp_i ,"_pathview.txt"), 
+                sep="\t", quote=FALSE, row.names = FALSE)
+    
+}
+
+DEG_logFC_list <- list()
+for (tp_i in names(DEA_list$limma_res) ){
+    DEG_logFC <- DEA_list$limma_res[[tp_i]][,c(tp_i, "logFC")]
+    colnames(DEG_logFC) <- c("gene", tp_i)
+    DEG_logFC_list[[tp_i]] <- DEG_logFC
+}
+
+DEG_logFC_df <- Reduce(dplyr::inner_join, DEG_logFC_list)
+write.table(DEG_logFC_df, 
+            file = paste0( "../results/pathview/DEG_logFC_df.txt"), 
+            sep="\t", quote=FALSE, row.names = FALSE)
+
+# write.table(DEA_list$limma_res$`2h`[,c("2h", "logFC")], file = "../results/DEA_list_limma_res_2h_pathview.txt", sep="\t", quote=FALSE, row.names = FALSE)
+# write.table(dplyr::filter(DEA_list$limma_res$`2h`, `2h` %in% DEA_list$DEG$`2h`)[,c("2h", "logFC")], file = "../results/DEA_list_limma_res_2h_DEG_pathview.txt", sep="\t", quote=FALSE, row.names = FALSE)
+
 
 intersect_time_indep_DEG <- Reduce(intersect, DEA_list$DEG)
 union_time_indep_DEG <- Reduce(union, DEA_list$DEG)
@@ -213,7 +240,7 @@ plot(w, gp=gp)
 
 genes_in_each_set <- w0@IntersectionSets
 
-save.image("../results/time_indep_DEA_stage1.RData")
+save.image("../results/time_indep_DEA_stage2.RData")
 
 
 ################################################################################
@@ -249,12 +276,8 @@ dotplot(genesEntrezID_eachtimepoint_KEGG, showCategory=30)
 genesEntrezID_eachtimepoint_GO <- compareCluster(genesEntrezID_eachtimepoint, fun='enrichGO', OrgDb='org.Hs.eg.db')
 dotplot(genesEntrezID_eachtimepoint_GO, showCategory=30)
 
-save.image("../results/time_indep_DEA_stage2.RData")
+save.image("../results/time_indep_DEA_stage3.RData")
 
 ################################################################################
-
-
-
-
 
 
