@@ -279,5 +279,91 @@ dotplot(genesEntrezID_eachtimepoint_GO, showCategory=30)
 save.image("../results/time_indep_DEA_stage3.RData")
 
 ################################################################################
+# cogena analysis
 
+#reorder the samples based on time points
+pheno_reorder <- dplyr::mutate(pheno, tp=as.numeric(sub("h", "", timepoint))) %>% 
+    dplyr::arrange(state, tp, sample_ID)
+sampleLabel <- pheno_reorder$label
+names(sampleLabel) <- pheno_reorder$sample_ID
+sampleLabel <- factor(sampleLabel, levels = c("C_0h", "C_2h", "C_6h", "C_12h", "C_24h", "C_48h", 
+                                              "F_2h", "F_6h", "F_12h", "F_24h", "F_48h") )
+
+DEexprs_time_indep_united <- DEexprs_time_indep_united[,pheno_reorder$sample_ID]
+
+# library(cogena)
+devtools::load_all("./cogena")
+
+nClust <- 2:10
+ncore <- 7
+clMethods <- c("hierarchical","kmeans","diana","fanny","som","sota","pam","clara","agnes")
+
+genecl_result <- coExp(DEexprs_time_indep_united, nClust=nClust, 
+                       clMethods=clMethods, 
+                       metric="correlation", 
+                       method="complete", 
+                       ncore=ncore, 
+                       verbose=TRUE)
+
+
+###########################################
+##########################################
+annoGMT <- "c2.cp.kegg.v6.1.symbols.gmt"
+annoGMT <- "c5.all.v6.1.symbols.gmt"; nClust =3; clMethods=c("kmeans")
+
+annofile <- system.file("extdata", annoGMT, package="cogena")
+
+
+cogena_result <- clEnrich(genecl_result, annofile=annofile, sampleLabel=sampleLabel, ncore=ncore)
+
+summary(cogena_result)
+
+heatmapCluster(cogena_result, "kmeans", "3", maintitle="Fn_HGFcell", add2=FALSE, 
+               heatmapcol=colorRampPalette(c("blue", "white", "firebrick2")),
+               cexCol=1.2 )
+heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE,
+           CutoffNumGeneset=30)
+
+save.image("../results/time_indep_DEA_stage4_KEGG.RData")
+
+#GObp
+gene_C2 <- geneInCluster(cogena_result, "kmeans", "3", "2")
+gene_C1 <- geneInCluster(cogena_result, "kmeans", "3", "1")
+# gene_C2 <- gene_C1
+
+genesEntrezID_gene_C2 <- symbol2entrezID(gene_C2)
+
+ego <- enrichGO(gene          = genesEntrezID_gene_C2,
+                universe      = symbol2entrezID(gene_count_rpkm$Symbol),
+                OrgDb         = org.Hs.eg.db,
+                ont           = "BP",
+                # ont           = "MF",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+                readable      = TRUE)
+
+dotplot(ego)
+cnetplot(ego)
+goplot(ego)
+save.image("../results/time_indep_DEA_stage4_GObp_C2.RData")
+save.image("../results/time_indep_DEA_stage4_GOmf_C2.RData")
+
+save.image("../results/time_indep_DEA_stage4_GOmf_C1.RData")
+save.image("../results/time_indep_DEA_stage4_GObp_C1.RData")
+
+################################################################################
+# clusterProfiler
+gene_C3 <- geneInCluster(cogena_result, "kmeans", "3", "3")
+
+coGenes <- list(gene_C1=gene_C1, gene_C2=gene_C2, gene_C3=gene_C3)
+coGenesEntrezID_list <- sapply(coGenes, symbol2entrezID )
+
+coGenesEntrezID_list_KEGG <- compareCluster(coGenesEntrezID_list, fun='enrichKEGG')
+dotplot(coGenesEntrezID_list_KEGG, showCategory=20)
+
+coGenesEntrezID_list_GO <- compareCluster(coGenesEntrezID_list, fun='enrichGO', OrgDb='org.Hs.eg.db')
+dotplot(coGenesEntrezID_list_GO, showCategory=20)
+
+save.image("../results/time_indep_DEA_stage4_compareCluster.RData")
 
