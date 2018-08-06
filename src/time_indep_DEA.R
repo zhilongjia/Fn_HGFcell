@@ -92,12 +92,22 @@ sapply(DEA_list$DEG, length)
 
 View(DEA_list$limma_res$`2h`)
 
+# for pathview input
 for (tp_i in names(DEA_list$limma_res) ){
     write.table(DEA_list$limma_res[[tp_i]][,c(tp_i, "logFC")], 
                 file = paste0( "../results/pathview/DEA_list_limma_res_", tp_i ,"_pathview.txt"), 
                 sep="\t", quote=FALSE, row.names = FALSE)
     
 }
+
+# for GSEA rnk
+for (tp_i in names(DEA_list$limma_res) ){
+    write.table(DEA_list$limma_res[[tp_i]][,c(tp_i, "t")], 
+                file = paste0( "../results/GSEA/DEA_list_limma_res_", tp_i ,".rnk"), 
+                sep="\t", quote=FALSE, row.names = FALSE, col.names = FALSE)
+    
+}
+
 
 DEG_logFC_list <- list()
 for (tp_i in names(DEA_list$limma_res) ){
