@@ -1,6 +1,6 @@
 
 library(ggfortify)
-
+load("../results/time_indep_DEA_stage2.RData")
 GE_raw <- read.csv("../data/rawdata_fromWenyanKang/AllSamples.GeneExpression.FPKM.tsv.csv")
 
 GE_all <- GE_raw[,-1]
@@ -23,18 +23,17 @@ autoplot(prcomp(t(GE_all), scale=F), data=pheno_allsample, colour = "label",
 
 
 GE_PCA_raw <- read.csv("../data/rawdata_fromWenyanKang/T.PCA_resul.csv")
-GE_PCA <- GE_PCA[,1:3] %>% dplyr::left_join(pheno_allsample, by=c("X"="sample_IDraw"))
+GE_PCA <- GE_PCA_raw[,1:3] %>% dplyr::left_join(pheno_allsample, by=c("X"="sample_IDraw"))
 
 
 
 GE_PCA1 <- tidyr::gather(GE_PCA, "Comp", "value", 2:3)
-plot(GE_PCA[,2:3])
 
 qplot(data=GE_PCA, x=Comp.1, y=Comp.2, color=label, size=8 )+ scale_colour_brewer(palette = "Set1")
 
 ggplot(GE_PCA, aes(Comp.1, Comp.2, label=label)) + 
     geom_point(aes(colour = label), label=TRUE, size=9 ) +
-    geom_text(aes(label=label) ) + 
+    geom_text(aes(label=sample_ID) ) + 
     labs(x = "PC1(91.68%)", y="PC2(4.04%)")
 
 
