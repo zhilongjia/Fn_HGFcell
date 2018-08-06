@@ -320,6 +320,9 @@ genecl_result <- coExp(DEexprs_time_indep_united, nClust=nClust,
 ##########################################
 annoGMT <- "c2.cp.kegg.v6.1.symbols.gmt"
 annoGMT <- "c5.all.v6.1.symbols.gmt"; nClust =3; clMethods=c("kmeans")
+annoGMT <- "CmapDn100.gmt.xz"; nClust =3; clMethods=c("kmeans")
+annoGMT <- "CmapUp100.gmt.xz"; nClust =3; clMethods=c("kmeans")
+
 
 annofile <- system.file("extdata", annoGMT, package="cogena")
 
@@ -335,6 +338,11 @@ heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE,
            CutoffNumGeneset=30)
 
 save.image("../results/time_indep_DEA_stage4_KEGG.RData")
+
+heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE, orderMethod = "1")
+heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE, orderMethod = "2")
+save.image("../results/time_indep_DEA_stage4_DrpDn.RData")
+save.image("../results/time_indep_DEA_stage4_DrpUp.RData")
 
 #GObp
 gene_C2 <- geneInCluster(cogena_result, "kmeans", "3", "2")
