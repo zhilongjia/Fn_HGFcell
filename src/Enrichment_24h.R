@@ -22,6 +22,12 @@ DEGexp <- DEA_list$DEGexp[[tp]]
 write.table(as.data.frame(DEGexp), "../results/24h/DEGexp.tsv", quote=FALSE)
 write.table(as.data.frame(limma_res), "../results/24h/limma_res.tsv", quote=FALSE, row.names = FALSE)
 
+source("~/Dropbox/zzz.R")
+limma_res_anno <- gene2KEGG(limma_res$`24h`)
+limma_res_anno <- dplyr::left_join(limma_res, limma_res_anno, by=c("24h"="SYMBOL"))
+write.table(as.data.frame(limma_res_anno), "../results/24h/limma_res_anno.tsv", quote=FALSE, row.names = FALSE, sep="\t")
+
+write.table(as.data.frame(limma_res_anno)[,1:10], "../results/24h/limma_res_anno_v2.tsv", quote=FALSE, row.names = FALSE, sep="\t")
 
 ##heatmap
 col1 <- colorRampPalette(c("blue", "white", "firebrick2"))

@@ -37,11 +37,4 @@ ggplot(GE_PCA, aes(Comp.1, Comp.2, label=label)) +
     labs(x = "PC1(91.68%)", y="PC2(4.04%)")
 
 
-ggplot(GE_PCA, aes(Comp.1, Comp.2, label=label)) + 
-    geom_point(aes(colour = label), size=9 ) + 
-    labs(x = "PC1(91.68%)", y="PC2(4.04%)")
-
-
-
-
 

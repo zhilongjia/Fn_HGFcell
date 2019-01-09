@@ -46,6 +46,10 @@ pheno[pheno$sample_ID %in% c("B0", "C0", "D0", "E0", "F0"), "state" ] <- "C"
 pheno$individual <- as.factor(pheno$individual)
 pheno$state <- factor(pheno$state, levels = c("C", "F"))
 pheno$label <- factor(paste(pheno$state, pheno$timepoint, sep="_"))
+pheno$Group <- paste0(sub("h", "", pheno$timepoint), pheno$state)
+pheno$Group <- factor(pheno$Group, levels=c("0C", "2C", "6C", "12C", "24C", "48C","2F", "6F",  "12F", "24F", "48F" ))
+
+
 
 save(dge, pheno, file="../results/Fn_HGF_Gene_exprs.Rdata")
 
@@ -91,6 +95,16 @@ save.image("../results/time_indep_DEA_stage1.RData")
 sapply(DEA_list$DEG, length)
 
 View(DEA_list$limma_res$`2h`)
+
+# for limma input
+for (tp_i in names(DEA_list$limma_res) ){
+    write.table(DEA_list$limma_res[[tp_i]], 
+                file = paste0( "../results/limma/DEA_list_limma_res_", tp_i ,".txt"), 
+                sep="\t", quote=FALSE, row.names = FALSE)
+    
+}
+
+write.table(v$E, file="../results/AllGeneExp.txt", sep="\t", quote=FALSE)
 
 # for pathview input
 for (tp_i in names(DEA_list$limma_res) ){
@@ -183,6 +197,10 @@ library(ggfortify)
 autoplot(prcomp(t(DEexprs_time_indep), scale=F), data=pheno, colour = "label", 
          size = 15, label = TRUE, label.colour="black", ts.colour="black" )
 
+autoplot(prcomp(t(DEexprs_time_indep), scale=F), data=pheno, colour = "Group", 
+         size = 15, label = TRUE, label.colour="black", ts.colour="black" )
+
+
 # color individ
 autoplot(prcomp(t(DEexprs_time_indep)), data=pheno, colour = "individual", 
          size = 15, label = TRUE, label.colour="black", ts.colour="black" )
@@ -252,6 +270,9 @@ genes_in_each_set <- w0@IntersectionSets
 
 save.image("../results/time_indep_DEA_stage2.RData")
 
+#venn
+library(venn)
+venn(DEA_list$DEG, ilab=TRUE, zcolor = "style", cexil=2, cexsn=2)
 
 ################################################################################
 # Pathway & GO analysis of ChowRuskey genesets
@@ -333,7 +354,10 @@ summary(cogena_result)
 
 heatmapCluster(cogena_result, "kmeans", "3", maintitle="Fn_HGFcell", add2=FALSE, 
                heatmapcol=colorRampPalette(c("blue", "white", "firebrick2")),
+               sampleColor = c(RColorBrewer::brewer.pal(9,"Purples")[4:9], 
+                                RColorBrewer::brewer.pal(7,"Greens")[3:7] ),
                cexCol=1.2 )
+
 heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE,
            CutoffNumGeneset=30)
 
@@ -341,6 +365,7 @@ save.image("../results/time_indep_DEA_stage4_KEGG.RData")
 
 heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE, orderMethod = "1")
 heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE, orderMethod = "2")
+heatmapPEI(cogena_result, "k", "3", maintitle="Fn_HGFcell", add2=FALSE, orderMethod = "3")
 save.image("../results/time_indep_DEA_stage4_DrpDn.RData")
 save.image("../results/time_indep_DEA_stage4_DrpUp.RData")
 
@@ -384,4 +409,15 @@ coGenesEntrezID_list_GO <- compareCluster(coGenesEntrezID_list, fun='enrichGO', 
 dotplot(coGenesEntrezID_list_GO, showCategory=20)
 
 save.image("../results/time_indep_DEA_stage4_compareCluster.RData")
+
+# show each gene symbol of DEGs in each pathways.
+pathway_entrezID_raw <- coGenesEntrezID_list_KEGG@compareClusterResult
+symbol_entrezID_df <- clusterProfiler::bitr(c(gene_C1, gene_C2, gene_C3), fromType="SYMBOL", toType="ENTREZID", OrgDb="org.Hs.eg.db")
+rownames(symbol_entrezID_df) <- symbol_entrezID_df$ENTREZID
+
+pathway_entrezID_symbol <- apply(strsplit2(pathway_entrezID_raw$geneID, "/"), 2, function(x){symbol_entrezID_df[x,"SYMBOL"]} )
+pathway_entrezID_symbol <- cbind(pathway_entrezID_raw, pathway_entrezID_symbol)
+
+write.table(pathway_entrezID_symbol, file="../results/pathway_entrezID_symbol.tsv", sep="\t", na="", row.names = FALSE, quote=FALSE)
+
 
