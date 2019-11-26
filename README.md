@@ -1,6 +1,8 @@
 ## Reproducible research
 
-The R code and data to reproduce all the figures and tables in the manuscript, *Time-course Transcriptome Analysis for Drug Repositioning in Fusobacterium nucleatum-infected Human Gingival Fibroblasts*.
+[Kang W, Jia Z, Tang D, et al. Time-Course Transcriptome Analysis for Drug Repositioning in *Fusobacterium nucleatum*-Infected Human Gingival Fibroblasts. Front Cell Dev Biol. 2019;7:204. Published 2019 Sep 20. doi:10.3389/fcell.2019.00204](https://www.frontiersin.org/articles/10.3389/fcell.2019.00204/full) or [PubMed](http://www.ncbi.nlm.nih.gov/pmc/articles/pmc6771468/)
+
+The R code and data to reproduce all the figures and tables in the manuscript.
 
 ## Directories and Files:
 
@@ -37,8 +39,14 @@ Set the src directory as the working dir to run the code. For example, `setwd(".
 
 ## Update:
 
+    Add citations at Nov. 26, 2019
     Released as a Public repository at June 22, 2019.
     Created as a Private repository at Jan 9, 2019.
+
+## Citations:
+   [Kang W, Jia Z, Tang D, et al. Time-Course Transcriptome Analysis for Drug Repositioning in *Fusobacterium nucleatum*-Infected Human Gingival Fibroblasts. Front Cell Dev Biol. 2019;7:204. Published 2019 Sep 20. doi:10.3389/fcell.2019.00204](https://www.frontiersin.org/articles/10.3389/fcell.2019.00204/full)
+
+   [Kang W, Jia Z, Tang D, et al. *Fusobacterium nucleatum* Facilitates Apoptosis, ROS Generation, and Inflammatory Cytokine Production by Activating AKT/MAPK and NF-*κ*B Signaling Pathways in Human Gingival Fibroblasts. Oxid Med Cell Longev. 2019;2019:1681972. Published 2019 Oct 13. doi:10.1155/2019/1681972](https://www.hindawi.com/journals/omcl/2019/1681972/)
 
 ## Issue
 
